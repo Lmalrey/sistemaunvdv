@@ -1,0 +1,405 @@
+:root {
+	/* Fonts */
+	--font-family-primary: system-ui;
+	--font-family-body: var(--font-family-primary);
+	--font-family-heading: system-ui, serif;
+
+	--font-weigth-light: 200;
+	--font-weigth-regular: 400;
+	--font-weigth-semi-bold: 700;
+	--font-weigth-bold: 900;
+
+	--font-size-xs: clamp(0.625rem, 0.5893rem + 0.1786vw, 0.75rem);
+	--font-size-sm: clamp(0.75rem, 0.7143rem + 0.1786vw, 0.875rem);
+	--font-size-normal: clamp(0.875rem, 0.8393rem + 0.1786vw, 1rem);
+	--font-size-base: clamp(1rem, 0.9643rem + 0.1786vw, 1.125rem);
+	--font-size-md: clamp(1.125rem, 1.0893rem + 0.1786vw, 1.25rem);
+	--font-size-lg: clamp(1.25rem, 1.1786rem + 0.3571vw, 1.5rem);
+	--font-size-xl: clamp(1.5rem, 1.3571rem + 0.7143vw, 2rem);
+
+	/* Colors */
+	--color-blue-50: #e3f2fd;
+	--color-blue-100: #bbdefb;
+	--color-blue-200: #90caf9;
+	--color-blue-300: #64b5f6;
+	--color-blue-400: #42a5f5;
+	--color-blue-500: #2196f3;
+	--color-blue-600: #1e88e5;
+	--color-blue-700: #1976d2;
+	--color-blue-800: #1565c0;
+
+	--color-red-50: #ffebee;
+	--color-red-100: #ffcdd2;
+	--color-red-200: #ef9a9a;
+	--color-red-300: #e57373;
+	--color-red-400: #ef5350;
+	--color-red-500: #f44336;
+	--color-red-600: #e53935;
+	--color-red-700: #d32f2f;
+	--color-red-800: #c62828;
+	--color-red-900: #b71c1c;
+
+	--color-orange-50: #fff3e0;
+	--color-orange-100: #ffe0b2;
+	--color-orange-200: #ffcc80;
+	--color-orange-300: #ffb74d;
+	--color-orange-400: #ffa726;
+	--color-orange-500: #ff9800;
+	--color-orange-600: #fb8c00;
+	--color-orange-700: #f57c00;
+	--color-orange-800: #ef6c00;
+	--color-orange-900: #e65100;
+
+	--color-pink-50: #fce4ec;
+	--color-pink-100: #f8bbd0;
+	--color-pink-200: #f48fb1;
+	--color-pink-300: #f06292;
+	--color-pink-400: #ec407a;
+	--color-pink-500: #e91e63;
+	--color-pink-600: #d81b60;
+	--color-pink-700: #c2185b;
+	--color-pink-800: #ad1457;
+	--color-pink-900: #880e4f;
+
+	--color-deep-purple-50: #ede7f6;
+	--color-deep-purple-100: #d1c4e9;
+	--color-deep-purple-200: #b39ddb;
+	--color-deep-purple-300: #9575cd;
+	--color-deep-purple-400: #7e57c2;
+	--color-deep-purple-500: #673ab7;
+	--color-deep-purple-600: #5e35b1;
+	--color-deep-purple-700: #512da8;
+	--color-deep-purple-800: #4527a0;
+	--color-deep-purple-900: #311b92;
+
+	--color-purple-50: #f3e5f5;
+	--color-purple-100: #e1bee7;
+	--color-purple-200: #ce93d8;
+	--color-purple-300: #ba68c8;
+	--color-purple-400: #ab47bc;
+	--color-purple-500: #9c27b0;
+	--color-purple-600: #8e24aa;
+	--color-purple-700: #7b1fa2;
+	--color-purple-800: #6a1b9a;
+	--color-purple-900: #4a148c;
+
+	--color-indigo-50: #e8eaf6;
+	--color-indigo-100: #c5cae9;
+	--color-indigo-200: #9fa8da;
+	--color-indigo-300: #7986cb;
+	--color-indigo-400: #5c6bc0;
+	--color-indigo-500: #3f51b5;
+	--color-indigo-600: #3949ab;
+	--color-indigo-700: #303f9f;
+	--color-indigo-800: #283593;
+	--color-indigo-900: #1a237e;
+
+	--color-blue-50: #e3f2fd;
+	--color-blue-100: #bbdefb;
+	--color-blue-200: #90caf9;
+	--color-blue-300: #64b5f6;
+	--color-blue-400: #42a5f5;
+	--color-blue-500: #2196f3;
+	--color-blue-600: #1e88e5;
+	--color-blue-700: #1976d2;
+	--color-blue-800: #1565c0;
+	--color-blue-900: #0d47a1;
+
+	--color-light-blue-50: #e1f5fe;
+	--color-light-blue-100: #b3e5fc;
+	--color-light-blue-200: #81d4fa;
+	--color-light-blue-300: #4fc3f7;
+	--color-light-blue-400: #29b6f6;
+	--color-light-blue-500: #03a9f4;
+	--color-light-blue-600: #039be5;
+	--color-light-blue-700: #0288d1;
+	--color-light-blue-800: #0277bd;
+	--color-light-blue-900: #01579b;
+
+	--color-green-50: #e8f5e9;
+	--color-green-100: #c8e6c9;
+	--color-green-200: #a5d6a7;
+	--color-green-300: #81c784;
+	--color-green-400: #81c784;
+	--color-green-500: #4caf50;
+	--color-green-600: #43a047;
+	--color-green-700: #388e3c;
+	--color-green-800: #2e7d32;
+	--color-green-900: #1b5e20;
+
+	--color-yellow-50: #fffde7;
+	--color-yellow-100: #fff9c4;
+	--color-yellow-200: #fff59d;
+	--color-yellow-300: #fff176;
+	--color-yellow-400: #ffee58;
+	--color-yellow-500: #ffeb3b;
+	--color-yellow-600: #fdd835;
+	--color-yellow-700: #fbc02d;
+	--color-yellow-800: #f9a825;
+	--color-yellow-900: #f57f17;
+
+	--color-grey-50: #fafafa;
+	--color-grey-100: #f5f5f5;
+	--color-grey-200: #eeeeee;
+	--color-grey-300: #e0e0e0;
+	--color-grey-400: #bdbdbd;
+	--color-grey-500: #9e9e9e;
+	--color-grey-600: #757575;
+	--color-grey-700: #616161;
+	--color-grey-800: #424242;
+	--color-grey-900: #212121;
+
+	--color-amber-300: #ffd54f;
+	--color-amber-600: #ffb300;
+
+	--color-white: lch(97.23% 0 134.54);
+	--color-white-200: lch(90.23% 0 134.54);
+
+	--color-black-200: lch(80% 0 134.54);
+	--color-black-400: lch(58% 0 134.54);
+	--color-black-600: lch(34.5% 0 134.54);
+	--color-black-700: lch(20.5% 0 134.54);
+	--color-black-800: lch(10.5% 0 134.54);
+	--color-black: lch(9.5% 0 134.54);
+
+	--color-neutral-800: lch(20% 6.7 289.8);
+	--color-neutral-600: lch(20% 6.7 289.8);
+
+	/* Palettes */
+	--color-background: light-dark(var(--color-white), var(--color-black-800));
+	--color-primary: light-dark(var(--color-light-blue-500), var(--color-blue-400));
+	--color-primary-hover-light: light-dark(var(--color-orange-100), var(--color-blue-400));
+	--color-primary-hover: light-dark(var(--color-orange-800), var(--color-blue-400));
+
+	--color-secondary: light-dark(var(--color-pink-500), var(--color-pink-200));
+	--color-accent: light-dark(var(--color-blue-200), var(--color-blue-400));
+	--color-neutral: light-dark(var(--color-grey-100), var(--color-grey-900));
+	--color-neutral-hover: light-dark(var(--color-grey-200), var(--color-grey-900));
+
+	--text-color: light-dark(var(--color-black), var(--color-white));
+	--text-secondary-color: light-dark(var(--color-grey-700), var(--color-black-200));
+	--text-terciary-color: light-dark(var(--color-black-400), var(--color-black-400));
+
+	--border-color: light-dark(var(--color-grey-300), var(--color-grey-800));
+
+	/* color-scheme: light dark; */
+	color-scheme: light;
+
+	/* Paddings */
+	--space-3xs: clamp(0.25rem, 0.2321rem + 0.0893vw, 0.3125rem);
+	--space-2xs: clamp(0.5rem, 0.4643rem + 0.1786vw, 0.625rem);
+	--space-xs: clamp(0.75rem, 0.6964rem + 0.2679vw, 0.9375rem);
+	--space-s: clamp(1rem, 0.9286rem + 0.3571vw, 1.25rem);
+	--space-m: clamp(1.5rem, 1.3929rem + 0.5357vw, 1.875rem);
+	--space-l: clamp(2rem, 1.8571rem + 0.7143vw, 2.5rem);
+	--space-xl: clamp(3rem, 2.7857rem + 1.0714vw, 3.75rem);
+	--space-2xl: clamp(4rem, 3.7143rem + 1.4286vw, 5rem);
+	--space-3xl: clamp(6rem, 5.5714rem + 2.1429vw, 7.5rem);
+
+	--space-3xs-2xs: clamp(0.25rem, 0.1429rem + 0.5357vw, 0.625rem);
+	--space-2xs-xs: clamp(0.5rem, 0.375rem + 0.625vw, 0.9375rem);
+	--space-xs-s: clamp(0.75rem, 0.6071rem + 0.7143vw, 1.25rem);
+	--space-s-m: clamp(1rem, 0.75rem + 1.25vw, 1.875rem);
+	--space-m-l: clamp(1.5rem, 1.2143rem + 1.4286vw, 2.5rem);
+	--space-l-xl: clamp(2rem, 1.5rem + 2.5vw, 3.75rem);
+	--space-xl-2xl: clamp(3rem, 2.4286rem + 2.8571vw, 5rem);
+	--space-2xl-3xl: clamp(4rem, 3rem + 5vw, 7.5rem);
+
+	/* Border */
+	--border-radius: 10px;
+}
+
+/* General configuration */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html:focus-within {
+	scroll-behavior: smooth;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+fieldset,
+body {
+	margin: 0;
+}
+
+/* Body */
+body {
+	min-height: 100svh;
+	font-family: var(--font-family-body), sans-serif;
+	color: var(--text-color);
+	line-height: 1.6;
+	background: var(--color-neutral);
+	/* background: light-dark(var(--color-background), var(--color-black-800)); */
+	transition:
+		background-color 250ms,
+		color 250ms;
+}
+
+/* Headings */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: var(--font-family-heading), serif;
+	line-height: 1.1;
+	color: var(--text-color);
+}
+
+h1 {
+	font-size: var(--font-size-xl);
+}
+
+h2 {
+	font-size: var(--font-size-lg);
+}
+
+h3 {
+	font-size: var(--font-size-md);
+}
+
+h4,
+input,
+select,
+button,
+p,
+a,
+span {
+	font-size: var(--font-size-normal);
+	color: var(--text-color);
+}
+
+/* Images */
+img,
+picture,
+svg {
+	max-width: 100%;
+	display: block;
+}
+
+p,
+li {
+	text-wrap: pretty;
+	max-width: 65rem;
+}
+
+/* General utilities */
+main {
+	padding: var(--space-m);
+	max-width: 1280px;
+	margin: 0 auto;
+	width: 100%;
+}
+
+/* General componets */
+.card {
+	--shadow-color: light-dark(rgba(149, 157, 165, 0.2), rgb(from var(--color-grey-800) r g b / 0.3));
+
+	background: var(--color-neutral);
+	border: 0.05rem solid var(--border-color);
+	border-radius: var(--border-radius);
+	box-shadow: var(--shadow-color) 0px 8px 24px;
+	padding: var(--space-m);
+}
+
+/* input,
+select {
+	display: block;
+	padding: var(--space-2xs);
+	border-radius: 7px;
+	border: 1px solid var(--border-color);
+	font-weight: var(--font-weigth-light);
+	outline-color: var(--color-primary);
+	width: 100%;
+	background: var(--color-white);
+
+	&:hover {
+		border-color: var(--color-primary);
+	}
+}
+
+input:user-invalid,
+select:user-invalid {
+	border: 2px solid red;
+} */
+
+/* Button */
+button {
+	border-radius: var(--border-radius);
+	border: 1px solid var(--border-color);
+	padding: var(--space-xs);
+	cursor: pointer;
+	transition:
+		scale 100ms,
+		background 200ms;
+
+	&:active {
+		scale: 0.995;
+	}
+
+	background: var(--bg, var(--color-grey-500));
+	color: var(--color, var(--text-color));
+
+	&:hover {
+		background: var(--hover, var(--color-grey-400));
+	}
+}
+
+button.primary {
+	--bg: light-dark(var(--color-primary), var(--color-deep-purple-300));
+	--color: var(--color-neutral);
+	--hover: light-dark(var(--color-primary-hover), var(--color-deep-purple-500));
+}
+
+/* button.ghost {
+	--bg: none;
+	border: 0;
+}
+
+button.small {
+	font-size: var(--font-size-sm);
+	padding: var(--space-2xs) var(--space-xs);
+} */
+
+[role='list'] {
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+[data-dropdown-menu-content] {
+	border-radius: var(--border-radius);
+	border: 1px solid var(--border-color);
+	background-color: var(--color-neutral);
+	margin-top: var(--space-2xs);
+	margin-right: var(--space-s);
+	padding: var(--space-xs);
+}
+
+[data-dropdown-menu-item]:has(> svg) {
+	cursor: pointer;
+	display: flex;
+	gap: var(--space-2xs);
+	border-radius: var(--border-radius);
+	padding: var(--space-2xs);
+
+	& svg {
+		width: var(--font-size-md);
+		stroke: var(--text-color);
+	}
+
+	&:hover {
+		background-color: var(--color-neutral-hover);
+	}
+}
