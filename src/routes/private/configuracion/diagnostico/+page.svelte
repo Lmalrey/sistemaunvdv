@@ -28,7 +28,7 @@
 	function handleDelete() {
 		if (confirm(`¿Estás seguro de que deseas eliminar el item ${selectedItemId}?`)) {
 			console.log('Eliminar item:', selectedItemId);
-			// Aquí iría la llamada a tu API para eliminar el diagnóstico.
+			
 		}
 		closeActionsModal();
 	}
