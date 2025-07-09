@@ -1,7 +1,7 @@
 <script lang="ts">
     import {tick} from 'svelte';
 
-    let {onEdit, onDelete, close}=$props();
+    let {onEdit, close}=$props();
 
     $effect(()=>{
         const handleKeydown = (event:any) => {
@@ -29,15 +29,13 @@
     })
 </script>
 
+<!-- svelte-ignore slot_element_deprecated -->
 <div class="actions-modal">
 	<button class="action-item" onclick={onEdit}>
 		<span class="icon">✎</span>
 		Editar
 	</button>
-	<button class="action-item delete" onclick={onDelete}>
-		<span class="icon">🗑️</span>
-		Eliminar
-	</button>
+	<slot name="deleteAction"/>
 </div>
 
 <style>
@@ -80,11 +78,4 @@
 		font-size: 1.2rem;
 	}
 
-	.action-item.delete {
-		color: #e53e3e; /* Rojo para la opción de eliminar */
-	}
-
-	.action-item.delete:hover {
-		background-color: #fed7d7;
-	}
 </style>

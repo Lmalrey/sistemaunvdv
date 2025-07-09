@@ -1,14 +1,19 @@
 <script lang="ts">
-    let {data} = $props()
-    	import ActionsModal from '$lib/components/ActionsModal.svelte';
+    import ActionsModal from '$lib/components/ActionsModal.svelte';
+    import { enhance } from '$app/forms';
+    import {goto} from '$app/navigation';
 
-	// $state es la nueva "runa" para crear estado reactivo en Svelte 5.
+    
+    let {data} = $props()
+
+    let diagnostics= $derived(data.diagnosticos)
+
 	let isModalOpen = $state(false);
 
 	// Este podría ser el ID del diagnóstico que quieres editar/eliminar.
-	let selectedItemId = $state(null);
+	let selectedItemId : number | null=$state(null);
 
-	function openActionsModal(itemId:any) {
+	function openActionsModal(itemId:number) {
 		selectedItemId = itemId;
 		isModalOpen = true;
 	}
@@ -19,19 +24,12 @@
 	}
 
 	function handleEdit() {
-		console.log('Editar item:', selectedItemId);
-		// Aquí iría tu lógica para navegar a la página de edición
-		// o abrir otro modal más grande para editar.
+		if(selectedItemId){
+            goto(`/private/configuracion/diagnostico/${selectedItemId}/edit`)
+        }
 		closeActionsModal();
 	}
 
-	function handleDelete() {
-		if (confirm(`¿Estás seguro de que deseas eliminar el item ${selectedItemId}?`)) {
-			console.log('Eliminar item:', selectedItemId);
-			
-		}
-		closeActionsModal();
-	}
 </script>
 
 <h2>Configuración del sistema</h2>
@@ -71,11 +69,28 @@
                                         <svg class="button-icon" width="20px" height="15px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#212121"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="1.296"></g><g id="SVGRepo_iconCarrier"> <defs> <style>.cls-1{fill:none;stroke:#212121;stroke-linecap:round;stroke-linejoin:bevel;stroke-width:1.5px;}</style> </defs> <g id="ic-actions-more-1"> <circle class="cls-1" cx="4.19" cy="11.98" r="2"></circle> <circle class="cls-1" cx="12" cy="12.02" r="2"></circle> <circle class="cls-1" cx="19.81" cy="11.98" r="2"></circle> </g> </g></svg>
                                     </button>
                                     {#if isModalOpen && selectedItemId === diagnostico.id}
-                                        <ActionsModal
-                                            onEdit={handleEdit}
-                                            onDelete={handleDelete}
-                                            close={closeActionsModal}
-                                        />
+                                        <ActionsModal onEdit={handleEdit} close={closeActionsModal}>
+                                            <svelte:fragment slot="deleteAction">
+                                            <form
+                                                method="POST"
+                                                action="?/delete"
+                                                use:enhance={() => {
+                                                    // Opcional: cierra el modal inmediatamente para mejor UX
+                                                    closeActionsModal();
+                                                    // SvelteKit se encarga del resto
+                                                    return async ({ update }) => {
+                                                        await update();
+                                                    };
+                                                }}
+                                            >
+                                                    <input type="hidden" name="id" value={selectedItemId} />
+                                                    <button type="submit" class="action-item delete">
+                                                        <span class="icon">🗑️</span>
+                                                        Eliminar
+                                                    </button>
+                                                </form>
+                                            </svelte:fragment>
+                                        </ActionsModal>
                                     {/if}
                                 </div>
                             </td>
@@ -245,5 +260,35 @@
 i{
     color: #ffffff;
 }
+.action-item {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 10px;
+		border: none;
+		background: none;
+		width: 100%;
+		text-align: left;
+		border-radius: 6px;
+		font-size: 1rem;
+		cursor: pointer;
+		transition: background-color 0.2s;
+	}
+
+	.action-item:hover {
+		background-color: #f5f5f5;
+	}
+
+	.action-item .icon {
+		font-size: 1.2rem;
+	}
+
+	.action-item.delete {
+		color: #e53e3e; /* Rojo para la opción de eliminar */
+	}
+
+	.action-item.delete:hover {
+		background-color: #fed7d7;
+	}
 
 </style>
