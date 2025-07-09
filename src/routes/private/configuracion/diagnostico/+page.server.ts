@@ -1,11 +1,13 @@
 import { db } from "$lib/server/database";
 import { fail } from "@sveltejs/kit";
 import type { ServerLoad, Actions } from "@sveltejs/kit";
+import { id } from "zod/v4/locales";
 
 export const load: ServerLoad = async()=>{
     const diagnosticos = await db
     .selectFrom('diagnosis')
     .selectAll()
+	.orderBy('id', 'asc')
     .execute();
 
     return {diagnosticos};

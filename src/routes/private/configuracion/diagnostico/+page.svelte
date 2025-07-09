@@ -69,28 +69,28 @@
                                         <svg class="button-icon" width="20px" height="15px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#212121"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="1.296"></g><g id="SVGRepo_iconCarrier"> <defs> <style>.cls-1{fill:none;stroke:#212121;stroke-linecap:round;stroke-linejoin:bevel;stroke-width:1.5px;}</style> </defs> <g id="ic-actions-more-1"> <circle class="cls-1" cx="4.19" cy="11.98" r="2"></circle> <circle class="cls-1" cx="12" cy="12.02" r="2"></circle> <circle class="cls-1" cx="19.81" cy="11.98" r="2"></circle> </g> </g></svg>
                                     </button>
                                     {#if isModalOpen && selectedItemId === diagnostico.id}
-                                        <ActionsModal onEdit={handleEdit} close={closeActionsModal}>
-                                            <svelte:fragment slot="deleteAction">
-                                            <form
-                                                method="POST"
-                                                action="?/delete"
-                                                use:enhance={() => {
-                                                    // Opcional: cierra el modal inmediatamente para mejor UX
-                                                    closeActionsModal();
-                                                    // SvelteKit se encarga del resto
-                                                    return async ({ update }) => {
-                                                        await update();
-                                                    };
-                                                }}
-                                            >
-                                                    <input type="hidden" name="id" value={selectedItemId} />
-                                                    <button type="submit" class="action-item delete">
-                                                        <span class="icon">🗑️</span>
-                                                        Eliminar
-                                                    </button>
-                                                </form>
-                                            </svelte:fragment>
-                                        </ActionsModal>
+                                            <ActionsModal onEdit={handleEdit} close={closeActionsModal}>
+                                                <svelte:fragment slot="deleteAction">
+                                                <form
+                                                    method="POST"
+                                                    action="?/delete"
+                                                    use:enhance={() => {
+                                                        // Opcional: cierra el modal inmediatamente para mejor UX
+                                                        closeActionsModal();
+                                                        // SvelteKit se encarga del resto
+                                                        return async ({ update }) => {
+                                                            await update();
+                                                        };
+                                                    }}
+                                                >
+                                                        <input type="hidden" name="id" value={selectedItemId} />
+                                                        <button type="submit" class="action-item delete">
+                                                            <span class="icon">🗑️</span>
+                                                            Eliminar
+                                                        </button>
+                                                    </form>
+                                                </svelte:fragment>
+                                            </ActionsModal>
                                     {/if}
                                 </div>
                             </td>
@@ -247,6 +247,7 @@
 .actions-button:hover {
 	background-color: #f0f0f0;
 }
+
 .table-scroll-container{
     max-height: 300px;
     overflow-y: auto;

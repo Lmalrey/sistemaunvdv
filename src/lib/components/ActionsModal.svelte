@@ -41,14 +41,14 @@
 <style>
 	.actions-modal {
 		position: absolute;
-		top: calc(100% + 8px); /* Posición justo debajo del botón que lo activa */
+		top: calc(0% - 60px); /* Posición justo debajo del botón que lo activa */
 		right: 0;
 		background-color: white;
 		border-radius: 8px;
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 		border: 1px solid #eee;
 		padding: 8px;
-		z-index: 10;
+		z-index: 20;
 		width: 150px;
 		display: flex;
 		flex-direction: column;
