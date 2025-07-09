@@ -1,16 +1,24 @@
 import { db } from "$lib/server/database";
 import { fail } from "@sveltejs/kit";
 import type { ServerLoad, Actions } from "@sveltejs/kit";
-import { id } from "zod/v4/locales";
+import { Query } from "pg";
 
-export const load: ServerLoad = async()=>{
-    const diagnosticos = await db
+export const load: ServerLoad = async({url})=>{
+
+	const searchTerm = url.searchParams.get('search');
+
+    let query = db
     .selectFrom('diagnosis')
     .selectAll()
 	.orderBy('id', 'asc')
-    .execute();
 
-    return {diagnosticos};
+	if(searchTerm){
+		query=query.where('name', 'like', `%${searchTerm}%`);
+	}
+
+	const diagnosticos = await query.execute();
+
+    return {diagnosticos, searchTerm};
 }
 export const actions: Actions = {
 	// Nombramos la acción 'delete'. Puedes tener otras como 'create', 'update', etc.

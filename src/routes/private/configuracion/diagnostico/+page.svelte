@@ -2,11 +2,34 @@
     import ActionsModal from '$lib/components/ActionsModal.svelte';
     import { enhance } from '$app/forms';
     import {goto} from '$app/navigation';
+    import {page} from '$app/stores';
 
     
     let {data} = $props()
 
-    let diagnostics= $derived(data.diagnosticos)
+    let searchTerm = $state(data.searchTerm ?? '');
+
+    let debounceTimer: any;
+
+    function handleSearchInput() {
+        // Cancela la búsqueda anterior si el usuario sigue escribiendo
+        clearTimeout(debounceTimer);
+
+        // Configura una nueva búsqueda para que se ejecute en 300ms
+        debounceTimer = setTimeout(() => {
+            const url = new URL($page.url); // Copiamos la URL actual
+
+            if (searchTerm) {
+                url.searchParams.set('search', searchTerm);
+            } else {
+                url.searchParams.delete('search');
+            }
+
+            // Navegamos a la nueva URL. SvelteKit se encargará de volver a ejecutar `load`.
+            // `replaceState` evita llenar el historial del navegador.
+            goto(url, { replaceState: true, keepFocus: true });
+        }, 300);
+    }
 
 	let isModalOpen = $state(false);
 
@@ -35,12 +58,17 @@
 <h2>Configuración del sistema</h2>
 <div class="container">
     <div class="content-section">
-        <h3>Lista de Medicamentos</h3>
-        <p>Gestiona la lista de medicamentos disponibles en el sistema</p>
+        <h3>Lista de Diagnósticos</h3>
+        <p>Gestiona la lista de diagnósticos disponibles en el sistema</p>
         <div class="actions-bar">
             <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Buscar diagnósticos...">
+                <input 
+                    type="text" 
+                    placeholder="Buscar diagnósticos..."
+                    bind:value={searchTerm}
+                    oninput={handleSearchInput}
+                >
             </div>
             <button class="add-button">
                 <i class="fas fa-plus"></i> <a href="/private/configuracion/diagnostico/add">
