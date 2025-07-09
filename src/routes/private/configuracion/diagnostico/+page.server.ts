@@ -5,20 +5,39 @@ import { Query } from "pg";
 
 export const load: ServerLoad = async({url})=>{
 
+	const page = Number(url.searchParams.get('page') ?? '1');
+    const pageSize = 3; // O el número de items por página que prefieras
 	const searchTerm = url.searchParams.get('search');
 
-    let query = db
-    .selectFrom('diagnosis')
-    .selectAll()
-	.orderBy('id', 'asc')
+    let queryBase = db.selectFrom('diagnosis');
+    if (searchTerm) {
+        queryBase = queryBase.where('name', 'ilike', `%${searchTerm}%`);
+    }
 
-	if(searchTerm){
-		query=query.where('name', 'like', `%${searchTerm}%`);
-	}
+	const totalResult = await queryBase
+        .select(db.fn.count('id').as('total'))
+        .executeTakeFirst();
+    
+    const totalItems = Number(totalResult?.total ?? 0);
+    const pageCount = Math.ceil(totalItems / pageSize);
 
-	const diagnosticos = await query.execute();
+    // 4. SEGUNDA CONSULTA: OBTENER LOS DATOS DE LA PÁGINA ACTUAL
+    const diagnosticos = await queryBase
+        .selectAll()
+        .orderBy('id', 'asc')
+        .limit(pageSize)
+        .offset((page - 1) * pageSize)
+        .execute();
 
-    return {diagnosticos, searchTerm};
+    // 5. DEVOLVER TODOS LOS DATOS NECESARIOS PARA LA TABLA
+    return {
+        diagnosticos,
+        pageCount,
+        currentPage: page,
+        pageSize,
+        totalItems,
+        searchTerm
+    };
 }
 export const actions: Actions = {
 	// Nombramos la acción 'delete'. Puedes tener otras como 'create', 'update', etc.

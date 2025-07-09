@@ -4,10 +4,58 @@
     import {goto} from '$app/navigation';
     import {page} from '$app/stores';
 
+    import { 
+        createSvelteTable, 
+        flexRender, 
+        getCoreRowModel,
+        type ColumnDef
+    } from '@tanstack/svelte-table';
+    import type{Diagnosis} from '$lib/server/database.js';
     
+
     let {data} = $props()
 
     let searchTerm = $state(data.searchTerm ?? '');
+
+    // --- Definición de Columnas para TanStack Table ---
+    const columns: ColumnDef<Diagnosis>[] = [
+        {
+            accessorKey: 'id',
+            header: 'ID',
+        },
+        {
+            accessorKey: 'name',
+            header: 'Diagnóstico',
+        },
+        {
+            id: 'actions',
+            header: 'Acciones',
+            // Usamos una celda custom para renderizar los botones y el modal
+            cell: (info) => info.row.original
+        }
+    ];
+    
+    const table = $derived(createSvelteTable({
+        data: data.diagnosticos,
+        columns,
+        pageCount: data.pageCount,
+        state: {
+            pagination: {
+                pageIndex: data.currentPage - 1,
+                pageSize: data.pageSize
+            }
+        },
+        manualPagination: true,
+        getCoreRowModel: getCoreRowModel(),
+    }));
+
+    function goToPage(pageIndex: number) {
+        const url = new URL($page.url);
+        // El pageIndex de TanStack es 0-based, lo convertimos a 1-based para la URL
+        url.searchParams.set('page', (pageIndex + 1).toString());
+        // `goto` le dice a SvelteKit que navegue a la nueva URL, lo que re-ejecuta `load`
+        goto(url, { replaceState: true, keepFocus: true, noScroll: true });
+    }
 
     let debounceTimer: any;
 
@@ -55,6 +103,38 @@
 
 </script>
 
+{#snippet ActionsCell(diagnostico: Diagnosis)}
+    <div class="actions-container">
+        <button class="actions-button" onclick={()=>openActionsModal(diagnostico.id)}>
+            <svg class="button-icon" width="20px" height="15px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#212121"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="1.296"></g><g id="SVGRepo_iconCarrier"> <defs> <style>.cls-1{fill:none;stroke:#212121;stroke-linecap:round;stroke-linejoin:bevel;stroke-width:1.5px;}</style> </defs> <g id="ic-actions-more-1"> <circle class="cls-1" cx="4.19" cy="11.98" r="2"></circle> <circle class="cls-1" cx="12" cy="12.02" r="2"></circle> <circle class="cls-1" cx="19.81" cy="11.98" r="2"></circle> </g> </g></svg>
+        </button>
+        {#if isModalOpen && selectedItemId === diagnostico.id}
+                <ActionsModal onEdit={handleEdit} close={closeActionsModal}>
+                    <svelte:fragment slot="deleteAction">
+                    <form
+                        method="POST"
+                        action="?/delete"
+                        use:enhance={() => {
+                            // Opcional: cierra el modal inmediatamente para mejor UX
+                            closeActionsModal();
+                            // SvelteKit se encarga del resto
+                            return async ({ update }) => {
+                                await update();
+                            };
+                        }}
+                    >
+                            <input type="hidden" name="id" value={selectedItemId} />
+                            <button type="submit" class="action-item delete">
+                                <span class="icon">🗑️</span>
+                                Eliminar
+                            </button>
+                        </form>
+                    </svelte:fragment>
+                </ActionsModal>
+        {/if}
+    </div>
+{/snippet}
+
 <h2>Configuración del sistema</h2>
 <div class="container">
     <div class="content-section">
@@ -78,60 +158,71 @@
         </div>
         {#if data.diagnosticos && data.diagnosticos.length > 0}
             <div class="table-scroll-container">
-                <table>
-                    <thead>
+            <table>
+                <thead>
+                    {#each $table.getHeaderGroups() as headerGroup (headerGroup.id)}
                         <tr>
-                            <td>ID</td>
-                            <td>Diagnóstico</td>
-                            <td>Acciones</td>
+                            {#each headerGroup.headers as header (header.id)}
+                                {@const Header = flexRender(header.column.columnDef.header, header.getContext())}
+                                <th>
+                                    <Header />
+                                </th>
+                            {/each}
                         </tr>
-                    </thead>
-                    <tbody>
-                        {#each data.diagnosticos as diagnostico}
+                    {/each}
+                </thead>
+                <tbody>
+                    <!-- ***** CAMBIO 3: RENDERIZADO CONDICIONAL EN EL CUERPO DE LA TABLA ***** -->
+                    {#each $table.getRowModel().rows as row (row.id)}
                         <tr>
-                            <td>{diagnostico.id}</td>
-                            <td>{diagnostico.name}</td>
-                            <td>
-                                <div class="actions-container">
-                                    <button class="actions-button" onclick={()=>openActionsModal(diagnostico.id)}>
-                                        <svg class="button-icon" width="20px" height="15px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#212121"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="1.296"></g><g id="SVGRepo_iconCarrier"> <defs> <style>.cls-1{fill:none;stroke:#212121;stroke-linecap:round;stroke-linejoin:bevel;stroke-width:1.5px;}</style> </defs> <g id="ic-actions-more-1"> <circle class="cls-1" cx="4.19" cy="11.98" r="2"></circle> <circle class="cls-1" cx="12" cy="12.02" r="2"></circle> <circle class="cls-1" cx="19.81" cy="11.98" r="2"></circle> </g> </g></svg>
-                                    </button>
-                                    {#if isModalOpen && selectedItemId === diagnostico.id}
-                                            <ActionsModal onEdit={handleEdit} close={closeActionsModal}>
-                                                <svelte:fragment slot="deleteAction">
-                                                <form
-                                                    method="POST"
-                                                    action="?/delete"
-                                                    use:enhance={() => {
-                                                        // Opcional: cierra el modal inmediatamente para mejor UX
-                                                        closeActionsModal();
-                                                        // SvelteKit se encarga del resto
-                                                        return async ({ update }) => {
-                                                            await update();
-                                                        };
-                                                    }}
-                                                >
-                                                        <input type="hidden" name="id" value={selectedItemId} />
-                                                        <button type="submit" class="action-item delete">
-                                                            <span class="icon">🗑️</span>
-                                                            Eliminar
-                                                        </button>
-                                                    </form>
-                                                </svelte:fragment>
-                                            </ActionsModal>
+                            {#each row.getVisibleCells() as cell (cell.id)}
+                            {@const Cell = flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                <td>
+                                    {#if cell.column.id === 'actions'}
+                                        <!-- Si la columna es 'actions', renderizamos nuestro snippet -->
+                                        {@render ActionsCell(cell.row.original)}
+                                    {:else}
+                                        <Cell />
                                     {/if}
-                                </div>
-                            </td>
+                                </td>
+                            {/each}
                         </tr>
-                        {/each}
-                    </tbody>
-                </table>
-            </div>
+                    {/each}
+                </tbody>
+            </table>
+        </div>
                 
             {:else}
                 <p>No hay diagnosticos registrados</p>
         {/if}
     </div>
+    <div class="footer">
+		<span>
+			{`página ${$table.getState().pagination.pageIndex + 1} de ${$table.getPageCount()}`}
+		</span>
+
+		<button
+			disabled={!$table.getCanPreviousPage()}
+			onclick={()=>goToPage($table.getState().pagination.pageIndex - 1)}
+			class="prev"
+			aria-label="página anterior"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 6-6 6 6 6" />
+			</svg>
+		</button>
+
+		<button
+			disabled={!$table.getCanNextPage()}
+			onclick={() => goToPage($table.getState().pagination.pageIndex + 1)}
+			class="next"
+			aria-label="siguiente página"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 6 6 6-6 6" />
+			</svg>
+		</button>
+	</div>
 </div>
 
 <style>
@@ -240,7 +331,7 @@
     background-color: #f8f9fa;
 }
 
-    thead td {
+     thead th {
     position: sticky;
     top: 0;
     z-index: 2;
@@ -318,6 +409,36 @@ i{
 
 	.action-item.delete:hover {
 		background-color: #fed7d7;
+	}
+
+    .footer{
+        display: flex;
+		gap: var(--space-xs);
+		padding: var(--space-s);
+		position: sticky;
+		left: 0;
+        border-top: 1px solid var(--border-color);
+		justify-content: flex-end;
+    }
+    .prev,
+	.next {
+		background: none;
+		border: none;
+		padding: var(--space-3xs);
+
+		&:not(:disabled):hover {
+			cursor: pointer;
+			background-color: var(--color-primary-hover-light);
+		}
+
+		& svg {
+			width: var(--font-size-md);
+			stroke: var(--color-primary);
+		}
+
+		&:disabled svg {
+			stroke: var(--text-terciary-color);
+		}
 	}
 
 </style>
