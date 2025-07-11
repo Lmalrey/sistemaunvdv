@@ -7,9 +7,21 @@ export interface DiagnosisTable {
   name: string;
   // Si tuvieras más columnas, como `description: string;`, las añadirías aquí.
 }
+export interface MedicineBrandTable{
+  id: number;
+  name: string;
+}
+
+export interface MedicineTable{
+  id: number;
+  name: string;
+  brand_id: number;
+}
 
 export interface Database {
   diagnosis: DiagnosisTable;
+  medicine_brand: MedicineBrandTable;
+  medicine: MedicineTable;
   // Si tuvieras más tablas, como `users: UsersTable;`, las añadirías aquí.
 }
 
@@ -28,3 +40,5 @@ export const db = new Kysely <Database>({
 })
 
 export type Diagnosis = Selectable<Database['diagnosis']>;
+export type MedicineBrand = Selectable<Database['medicine_brand']>;
+export type Medicine = Selectable<Database['medicine']>;

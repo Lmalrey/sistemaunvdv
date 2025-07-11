@@ -1,7 +1,6 @@
 import { db } from "$lib/server/database";
 import { fail } from "@sveltejs/kit";
 import type { ServerLoad, Actions } from "@sveltejs/kit";
-import { Query } from "pg";
 
 export const load: ServerLoad = async({url})=>{
 
