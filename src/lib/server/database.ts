@@ -23,12 +23,17 @@ export interface MeasurementUnitTable{
   name: string;
   unit: string;
 }
+export interface PersonalBackgroundQuestionTable{
+  id: number;
+  question: string;
+}
 
 export interface Database {
   diagnosis: DiagnosisTable;
   medicine_brand: MedicineBrandTable;
   medicine: MedicineTable;
   measurement_unit: MeasurementUnitTable;
+  personal_background_question: PersonalBackgroundQuestionTable;
   // Si tuvieras más tablas, como `users: UsersTable;`, las añadirías aquí.
 }
 
@@ -50,3 +55,4 @@ export type Diagnosis = Selectable<Database['diagnosis']>;
 export type MedicineBrand = Selectable<Database['medicine_brand']>;
 export type Medicine = Selectable<Database['medicine']>;
 export type MeasurementUnit = Selectable<Database['measurement_unit']>;
+export type PersonalBackgroundQuestion = Selectable<Database['personal_background_question']>;
