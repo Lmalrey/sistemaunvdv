@@ -27,6 +27,10 @@ export interface PersonalBackgroundQuestionTable{
   id: number;
   question: string;
 }
+export interface FamilyBackgroundQuestionTable{
+  id: number;
+  question: string;
+}
 
 export interface Database {
   diagnosis: DiagnosisTable;
@@ -34,6 +38,7 @@ export interface Database {
   medicine: MedicineTable;
   measurement_unit: MeasurementUnitTable;
   personal_background_question: PersonalBackgroundQuestionTable;
+  family_background_question: FamilyBackgroundQuestionTable;
   // Si tuvieras más tablas, como `users: UsersTable;`, las añadirías aquí.
 }
 
@@ -56,3 +61,4 @@ export type MedicineBrand = Selectable<Database['medicine_brand']>;
 export type Medicine = Selectable<Database['medicine']>;
 export type MeasurementUnit = Selectable<Database['measurement_unit']>;
 export type PersonalBackgroundQuestion = Selectable<Database['personal_background_question']>;
+export type FamilyBackgroundQuestion = Selectable<Database['family_background_question']>;

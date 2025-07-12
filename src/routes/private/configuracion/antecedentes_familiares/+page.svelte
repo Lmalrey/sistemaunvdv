@@ -10,7 +10,7 @@
         getCoreRowModel,
         type ColumnDef
     } from '@tanstack/svelte-table';
-    import type{PersonalBackgroundQuestion} from '$lib/server/database.js';
+    import type{FamilyBackgroundQuestion} from '$lib/server/database.js';
     
 
     let {data} = $props()
@@ -18,7 +18,7 @@
     let searchTerm = $state(data.searchTerm ?? '');
 
     // --- Definición de Columnas para TanStack Table ---
-    const columns: ColumnDef<PersonalBackgroundQuestion>[] = [
+    const columns: ColumnDef<FamilyBackgroundQuestion>[] = [
         {
             accessorKey: 'id',
             header: 'ID',
@@ -36,7 +36,7 @@
     ];
     
     const table = $derived(createSvelteTable({
-        data: data.antecedentesPersonales,
+        data: data.antecedentesFamiliares,
         columns,
         pageCount: data.pageCount,
         state: {
@@ -96,19 +96,19 @@
 
 	function handleEdit() {
 		if(selectedItemId){
-            goto(`/private/configuracion/antecedentes_personales/${selectedItemId}/edit`)
+            goto(`/private/configuracion/antecedentes_familiares/${selectedItemId}/edit`)
         }
 		closeActionsModal();
 	}
 
 </script>
 
-{#snippet ActionsCell(antecedente_personal: PersonalBackgroundQuestion)}
+{#snippet ActionsCell(antecedente_familiar: FamilyBackgroundQuestion)}
     <div class="actions-container">
-        <button class="actions-button" onclick={()=>openActionsModal(antecedente_personal.id)}>
+        <button class="actions-button" onclick={()=>openActionsModal(antecedente_familiar.id)}>
             <svg class="button-icon" width="20px" height="15px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#212121"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="1.296"></g><g id="SVGRepo_iconCarrier"> <defs> <style>.cls-1{fill:none;stroke:#212121;stroke-linecap:round;stroke-linejoin:bevel;stroke-width:1.5px;}</style> </defs> <g id="ic-actions-more-1"> <circle class="cls-1" cx="4.19" cy="11.98" r="2"></circle> <circle class="cls-1" cx="12" cy="12.02" r="2"></circle> <circle class="cls-1" cx="19.81" cy="11.98" r="2"></circle> </g> </g></svg>
         </button>
-        {#if isModalOpen && selectedItemId === antecedente_personal.id}
+        {#if isModalOpen && selectedItemId === antecedente_familiar.id}
                 <ActionsModal onEdit={handleEdit} close={closeActionsModal}>
                     <svelte:fragment slot="deleteAction">
                     <form
@@ -138,8 +138,8 @@
 <h2>Configuración del sistema</h2>
 <div class="container">
     <div class="content-section">
-        <h3>Lista de Antecedentes Personales</h3>
-        <p>Gestiona la lista de antecedentes personales disponibles en el sistema</p>
+        <h3>Lista de Antecedentes familiares</h3>
+        <p>Gestiona la lista de antecedentes familiares disponibles en el sistema</p>
         <div class="actions-bar">
             <div class="search-box">
                 <i class="fas fa-search"></i>
@@ -151,12 +151,12 @@
                 >
             </div>
             <button class="add-button">
-                <i class="fas fa-plus"></i> <a href="/private/configuracion/antecedentes_personales/add">
-                    Agregar antecedente personal
+                <i class="fas fa-plus"></i> <a href="/private/configuracion/antecedentes_familiares/add">
+                    Agregar antecedente familiar
                 </a>
             </button>
         </div>
-        {#if data.antecedentesPersonales && data.antecedentesPersonales.length > 0}
+        {#if data.antecedentesFamiliares && data.antecedentesFamiliares.length > 0}
             <div class="table-scroll-container">
             <table>
                 <thead>
@@ -193,7 +193,7 @@
         </div>
                 
             {:else}
-                <p>No hay antecedentes personales registrados</p>
+                <p>No hay antecedentes familiares registrados</p>
         {/if}
     </div>
     <div class="footer">
