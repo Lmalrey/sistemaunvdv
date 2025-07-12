@@ -18,11 +18,17 @@ export interface MedicineTable{
   name: string;
   brand_id: number;
 }
+export interface MeasurementUnitTable{
+  id: number;
+  name: string;
+  unit: string;
+}
 
 export interface Database {
   diagnosis: DiagnosisTable;
   medicine_brand: MedicineBrandTable;
   medicine: MedicineTable;
+  measurement_unit: MeasurementUnitTable;
   // Si tuvieras más tablas, como `users: UsersTable;`, las añadirías aquí.
 }
 
@@ -43,3 +49,4 @@ export const db = new Kysely <Database>({
 export type Diagnosis = Selectable<Database['diagnosis']>;
 export type MedicineBrand = Selectable<Database['medicine_brand']>;
 export type Medicine = Selectable<Database['medicine']>;
+export type MeasurementUnit = Selectable<Database['measurement_unit']>;
