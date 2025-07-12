@@ -1,6 +1,7 @@
 import { Pool } from 'pg'
 import { Kysely, PostgresDialect, type Selectable } from 'kysely'
 import { DATABASE_URL } from '$env/static/private'
+import { number } from 'zod/v4';
 
 export interface DiagnosisTable {
   id: number;
