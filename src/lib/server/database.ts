@@ -32,6 +32,7 @@ export interface FamilyBackgroundQuestionTable{
   question: string;
 }
 
+
 export interface Database {
   diagnosis: DiagnosisTable;
   medicine_brand: MedicineBrandTable;
