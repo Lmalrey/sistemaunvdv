@@ -8,11 +8,15 @@ export const load: ServerLoad = async({url})=>{
     const pageSize = 3; // O el número de items por página que prefieras
     const searchTerm = url.searchParams.get('search');
 
-    let queryBase = db.selectFrom('measurement_unit');
+    let queryBase = db.selectFrom('patient');
     if (searchTerm) {
         queryBase = queryBase.where((eb) => eb.or([
             eb('name', 'ilike', `%${searchTerm}%`),
-            eb('unit', 'ilike', `%${searchTerm}%`)
+            eb('lastName', 'ilike', `%${searchTerm}%`),
+            eb('email', 'ilike', `%${searchTerm}%`),
+            eb(eb.cast('ci', 'text'), 'ilike', `%${searchTerm}%`),
+            eb(eb.cast('phone', 'text'), 'ilike', `%${searchTerm}%`),
+            eb(eb.cast('birthDate', 'text'), 'ilike', `%${searchTerm}%`)
         ]));
     }
 
@@ -24,7 +28,7 @@ export const load: ServerLoad = async({url})=>{
     const pageCount = Math.ceil(totalItems / pageSize);
 
     // 4. SEGUNDA CONSULTA: OBTENER LOS DATOS DE LA PÁGINA ACTUAL
-    const unidades = await queryBase
+    const pacientes = await queryBase
         .selectAll()
         .orderBy('id', 'asc')
         .limit(pageSize)
@@ -33,7 +37,7 @@ export const load: ServerLoad = async({url})=>{
 
     // 5. DEVOLVER TODOS LOS DATOS NECESARIOS PARA LA TABLA
     return {
-        unidades,
+        pacientes,
         pageCount,
         currentPage: page,
         pageSize,
@@ -56,17 +60,17 @@ export const actions: Actions = {
         try {
             // TU QUERY DE KYSENY, JUSTO DONDE DEBE ESTAR
             const deleteResult = await db
-                .deleteFrom('measurement_unit')
-                .where('measurement_unit.id', '=', selectedItemId)
+                .deleteFrom('patient')
+                .where('patient.id', '=', selectedItemId)
                 .executeTakeFirst();
 
             // `numDeletedRows` es un BigInt, por eso se compara con 0n
             if (deleteResult.numDeletedRows === 0n) {
-                return fail(404, { message: `Unidad de medida con ID ${selectedItemId} no encontrada.` });
+                return fail(404, { message: `Paciente con ID ${selectedItemId} no encontrado.` });
             }
 
             // Si todo sale bien, SvelteKit recargará los datos de `load` automáticamente.
-            return { success: true, message: `Unidad de medida ${selectedItemId} eliminada.` };
+            return { success: true, message: `Paciente con ID ${selectedItemId} eliminado.` };
 
         } catch (error) {
             console.error("Error al eliminar:", error);
@@ -74,4 +78,3 @@ export const actions: Actions = {
         }
     }
 };
-

@@ -77,10 +77,7 @@
             </li>
             <li>
                 <a
-                    class="texto"
-                    href="/private/pacientes"
-                    aria-label="Pacientes"
-                >
+                    href="/private/pacientes" aria-label="Pacientes">
                     <svg
                         width="64px"
                         height="64px"
@@ -585,17 +582,22 @@
         transition: width 0.2s;
         background: var(--color-blue-500);
         height: 100vh;
-        position: static;
-        left: 0;
+        position: sticky;
         top: 0;
-        padding: var(--space-s);
+        left: 0;
+        padding: var(--space-xs);
     }
     .sidebar.collapsed {
         width: 45px;
+        padding: 0;
     }
     .sidebar.collapsed .header-title,
     .sidebar.collapsed .texto {
         display: none;
+    }
+    .collapsed .sidebar-header{
+        margin-top: 1rem;
+        margin-bottom: 1rem;
     }
     .sidebar h2 {
         color: var(--color-white);

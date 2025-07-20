@@ -41,7 +41,7 @@
 
 .main-content {
   flex: 1;
-  padding: 1.5rem;
+  padding: .5rem;
   transition: margin-left 0.2s; /* El sidebar ya ocupa su espacio */
 }
 </style>
