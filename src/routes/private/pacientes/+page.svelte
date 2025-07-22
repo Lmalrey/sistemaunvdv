@@ -114,7 +114,7 @@
 
 	function handleEdit() {
 		if(selectedItemId){
-            goto(`/private/configuracion/pacientes/${selectedItemId}/edit`)
+            goto(`/private/pacientes/${selectedItemId}/edit`)
         }
 		closeActionsModal();
 	}

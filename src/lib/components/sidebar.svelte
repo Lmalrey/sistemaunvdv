@@ -104,7 +104,7 @@
             </li>
             <li>
                 <a
-                    href="/private/registro_pacientes"
+                    href="/private/pacientes/add"
                     aria-label="Registro de pacientes"
                 >
                     <svg
@@ -135,9 +135,9 @@
                     >
                 </a>
                 {#if !collapsed}
-                    <a class="texto" href="/private/registro_pacientes"
-                        >Registro de pacientes</a
-                    >
+                    <a class="texto" href="/private/pacientes/add"
+                        >Registro de pacientes
+                    </a>
                 {/if}
             </li>
             <li>

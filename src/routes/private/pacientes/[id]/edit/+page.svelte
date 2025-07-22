@@ -1,26 +1,24 @@
 <script lang="ts">
-    import {zod} from 'sveltekit-superforms/adapters';
-    import { superForm } from 'sveltekit-superforms';
-    import { patientFormSchema } from './schema';
+    import { zod } from 'sveltekit-superforms/adapters';
+	import { superForm } from 'sveltekit-superforms';
+	// Importamos el schema desde la carpeta de creación
+    import { patientFormSchema } from '../../add/schema';
 
-  let { data } = $props();
+    let { data } = $props();
 
-  let currentStep = $state(1);
+    let currentStep = $state(1);
 
-  const { form, enhance, errors, message } = superForm(data.form, {
+    const { form, enhance, errors, message } = superForm(data.form, {
 		validators: zod(patientFormSchema),
 		dataType: 'json',
 	});
+	
     function nextStep() {
-		if (currentStep < 3) {
-			currentStep++;
-		}
+		if (currentStep < 3) currentStep++;
 	}
 
 	function prevStep() {
-		if (currentStep > 1) {
-			currentStep--;
-		}
+		if (currentStep > 1) currentStep--;
 	}
 
 	function goToStep(step: number) {
@@ -28,14 +26,14 @@
 	}
 </script>
 
-
 <div class="registration-container">
 	<div class="header">
+		<!-- Cambiamos el texto del título -->
 		<a href="/private/pacientes" class="back-link">← Volver</a>
-		<h1>Registro de Paciente</h1>
+		<h1>Editar Información del Paciente</h1>
 	</div>
 
-	<!-- Navegación de Pasos (Stepper) -->
+	<!-- La navegación de pasos es idéntica -->
 	<div class="stepper-nav">
 		<button class:active={currentStep === 1} onclick={() => goToStep(1)}>Datos Personales</button>
 		<button class:active={currentStep === 2} onclick={() => goToStep(2)}>Datos de Contacto</button>
@@ -46,14 +44,14 @@
 		<div class="form-message-error">{$message}</div>
 	{/if}
 
+	<!-- El formulario es idéntico. `bind:value` funcionará con los datos cargados. -->
 	<form method="POST" use:enhance>
-		<!-- Paso 1: Datos Personales e Información del Representante -->
 		{#if currentStep === 1}
 			<div class="form-step">
 				<h2>Datos Personales</h2>
-				<p class="subtitle">Ingrese la información personal del paciente</p>
-
-				<div class="form-grid">
+				<p class="subtitle">Modifique la información personal del paciente</p>
+				<!-- El HTML del paso 1 es el mismo -->
+                <div class="form-grid">
 					<div>
 						<label for="name">Nombre</label>
 						<input id="name" type="text" name="name" placeholder="Nombre del paciente" bind:value={$form.name} />
@@ -85,7 +83,6 @@
 						{#if $errors.gender_id}<span class="error">{$errors.gender_id}</span>{/if}
 					</div>
 				</div>
-
                 <h2 class="section-title">Información del Representante</h2>
                 <div class="form-grid">
                     <div>
@@ -102,13 +99,12 @@
 			</div>
 		{/if}
 
-		<!-- Paso 2: Datos de Contacto -->
 		{#if currentStep === 2}
 			<div class="form-step">
 				<h2>Datos de Contacto</h2>
-				<p class="subtitle">Ingrese la información de ubicación del paciente</p>
-
-				<div class="form-grid">
+				<p class="subtitle">Modifique la información de ubicación del paciente</p>
+				<!-- El HTML del paso 2 es el mismo -->
+                <div class="form-grid">
                     <div>
 						<label for="phone">Teléfono</label>
 						<input id="phone" type="tel" name="phone" placeholder="Número de teléfono" bind:value={$form.phone} />
@@ -148,12 +144,11 @@
 			</div>
 		{/if}
 
-		<!-- Paso 3: Antecedentes -->
 		{#if currentStep === 3}
 			<div class="form-step">
 				<h2>Antecedentes Médicos</h2>
-				<p class="subtitle">Seleccione los antecedentes médicos del paciente</p>
-				
+				<p class="subtitle">Modifique los antecedentes médicos del paciente</p>
+				<!-- El HTML del paso 3 es el mismo -->
                 <div class="antecedentes-section">
                     <label for="personal_description">Descripción de Antecedentes Personales</label>
                     <textarea id="personal_description" name="personal_background.description" bind:value={$form.personal_background.description}
@@ -194,12 +189,9 @@
 			</div>
 		{/if}
 
-		<!-- Botones de Navegación del Formulario -->
+		<!-- Cambiamos el texto del botón de envío -->
 		<div class="step-navigation">
 			<div>
-				{#if currentStep === 1}
-					<a href="/patients" class="button-cancel">Cancelar</a>
-				{/if}
 				{#if currentStep > 1}
 					<button type="button" class="button-secondary" onclick={prevStep}>Anterior</button>
 				{/if}
@@ -210,13 +202,15 @@
 					<button type="button" class="button-primary" onclick={nextStep}>Siguiente</button>
 				{/if}
 				{#if currentStep === 3}
-					<button type="submit" class="button-primary">Guardar Paciente</button>
+					<!-- CAMBIO DE TEXTO -->
+					<button type="submit" class="button-primary">Actualizar Paciente</button>
 				{/if}
 			</div>
 		</div>
 	</form>
 </div>
 
+<!-- Copia aquí el mismo bloque <style> que tienes en tu formulario de creación -->
 <style>
 	/* --- VARIABLES DE ESTILO --- */
 	:root {
@@ -390,7 +384,7 @@
 		margin-top: 2rem;
 	}
 
-	.button-primary, .button-secondary, .button-cancel {
+	.button-primary, .button-secondary{
 		padding: 0.75rem 1.5rem;
 		border: 1px solid transparent;
 		border-radius: 6px;
@@ -420,13 +414,6 @@
         background-color: #f1f1f1;
     }
 
-    .button-cancel {
-        background-color: transparent;
-        color: var(--text-color-secondary);
-    }
-    .button-cancel:hover {
-        background-color: #f1f1f1;
-    }
 
 	/* --- MENSAJES DE ERROR --- */
 	.error {
