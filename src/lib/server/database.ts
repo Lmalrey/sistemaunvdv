@@ -16,22 +16,22 @@ if (!process.env.DATABASE_URL) {
 }
 
 export interface DiagnosisTable {
-  id: number;
+  id: Generated<bigint>;
   name: string;
   // Si tuvieras más columnas, como `description: string;`, las añadirías aquí.
 }
 export interface MedicineBrandTable {
-  id: number;
+  id: Generated<bigint>;
   name: string;
 }
 
 export interface MedicineTable {
-  id: number;
+  id: Generated<bigint>; // Corregido: Unificado a bigint para consistencia
   name: string;
-  brand_id: number;
+  brand_id: bigint; // Corregido: Unificado a bigint para consistencia
 }
 export interface MeasurementUnitTable {
-  id: number;
+  id: Generated<bigint>; // Corregido: Unificado a bigint para consistencia
   name: string;
   unit: string;
 }
@@ -101,7 +101,7 @@ export interface PatientTable {
   parent_ci: number;
 }
 
-interface PhysicalExamTable {
+export interface PhysicalExamTable { // Corregido: Exportar la interfaz
   id: Generated<bigint>;
   weight: number;
   height: number;
@@ -111,6 +111,83 @@ interface PhysicalExamTable {
   breathing_rate: number;
   date: string;
 }
+
+export interface MedicalRecordTable {
+  id: Generated<bigint>;
+  tenant_id: bigint;
+  doctor_id: bigint;
+  patient_id: bigint;
+  physical_exam_id: bigint;
+  emmited_at: string;
+  description: string;
+  work_plan: string;
+}
+
+export interface MedicalRecordDiagnosisTable {
+  medical_record_id: bigint;
+  diagnosis_id: bigint;
+}
+
+export interface TenantTable {
+  id: Generated<bigint>;
+  name: string;
+  rif: string;
+  phone: string;
+  email: string;
+  state_id: bigint;
+  city: string;
+  address: string;
+}
+
+export interface DoctorTable{
+  id: Generated<bigint>;
+  name: string;
+  lastName: string;
+  matricula: number;
+  colegio_id: number;
+  rif: string;
+  specialty_id: bigint;
+  phone: string;
+  email: string;
+  logo_url: string;
+  account_id: string;
+}
+export interface DoctorSpecialtyTable {
+    id: Generated<bigint>;
+    name: string;
+}
+export interface RecipeTable{
+  id: Generated<bigint>;
+  tenant_id: bigint;
+  date: string;
+  doctor_id: bigint;
+  patient_id: bigint;
+  medical_record_id: bigint;
+}
+export interface RecipeMedicineTable{
+  recipe_id: bigint;
+  medicine_id: bigint;
+  medicine_concentration_id: bigint;
+  indications: string
+}
+export interface MedicineConcentrationTable{
+  id: Generated<bigint>;
+  amount: number;
+  measurement_unit_id: bigint;
+}
+export interface DateTable {
+  id: Generated<bigint>;
+  date: Date;
+  status_id: bigint;
+  doctor_id: bigint;
+  patient_id: bigint;
+  observation: string;
+}
+export interface DateStatusTable {
+  id: Generated<bigint>;
+  status: string;
+}
+
 
 export interface Database {
   diagnosis: DiagnosisTable;
@@ -128,6 +205,16 @@ export interface Database {
   family_background: FamilyBackgroundTable;
   family_background_question_junction: FamilyBackgroundQuestionJunctionTable;
   physical_exam: PhysicalExamTable;
+  medical_record: MedicalRecordTable;
+  medical_record_diagnosis: MedicalRecordDiagnosisTable; // Añadido: Registrar la tabla en la BD
+  tenant: TenantTable;
+  doctor: DoctorTable;
+  doctor_specialty: DoctorSpecialtyTable;
+  recipe: RecipeTable;
+  recipe_medicine: RecipeMedicineTable;
+  medicine_concentration: MedicineConcentrationTable;
+  date: DateTable;
+  date_status: DateStatusTable;
   // Si tuvieras más tablas, como `users: UsersTable;`, las añadirías aquí.
 }
 
@@ -149,11 +236,20 @@ export type Diagnosis = Selectable<Database["diagnosis"]>;
 export type MedicineBrand = Selectable<Database["medicine_brand"]>;
 export type Medicine = Selectable<Database["medicine"]>;
 export type MeasurementUnit = Selectable<Database["measurement_unit"]>;
-export type PersonalBackgroundQuestion = Selectable<
-  Database["personal_background_question"]
->;
-export type FamilyBackgroundQuestion = Selectable<
-  Database["family_background_question"]
->;
+export type PersonalBackgroundQuestion = Selectable<Database["personal_background_question"]>;
+export type FamilyBackgroundQuestion = Selectable<Database["family_background_question"]>;
 export type Patient = Selectable<Database["patient"]>;
 export type NewPatient = Insertable<Database["patient"]>;
+export type MedicalRecord= Selectable<Database["medical_record"]>;
+export type NewMedicalRecord = Insertable<Database["medical_record"]>;
+export type Tenant = Selectable<Database["tenant"]>;
+export type NewTenant = Insertable<Database["tenant"]>;
+export type Doctor = Selectable<Database["doctor"]>;
+export type NewDoctor = Insertable<Database["doctor"]>;
+export type PhysicalExam = Selectable<Database["physical_exam"]>;
+export type NewPhysicalExam = Insertable<Database["physical_exam"]>;
+export type Recipe = Selectable<Database["recipe"]>;
+export type NewRecipe = Insertable<Database["recipe"]>;
+export type Fecha= Selectable<Database["date"]>;
+export type NewDate = Insertable<Database["date"]>;
+
