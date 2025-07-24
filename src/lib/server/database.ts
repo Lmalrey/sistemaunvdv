@@ -187,6 +187,13 @@ export interface DateStatusTable {
   id: Generated<bigint>;
   status: string;
 }
+export interface SecretariaTable {
+  id: Generated<bigint>;
+  name: string;
+  lastName: string;
+  phone: string;
+  account_id: string;
+}
 
 
 export interface Database {
@@ -215,6 +222,7 @@ export interface Database {
   medicine_concentration: MedicineConcentrationTable;
   date: DateTable;
   date_status: DateStatusTable;
+  secretaria: SecretariaTable;
   // Si tuvieras más tablas, como `users: UsersTable;`, las añadirías aquí.
 }
 
@@ -252,4 +260,7 @@ export type Recipe = Selectable<Database["recipe"]>;
 export type NewRecipe = Insertable<Database["recipe"]>;
 export type Fecha= Selectable<Database["date"]>;
 export type NewDate = Insertable<Database["date"]>;
+export type Secretaria=Selectable<Database["secretaria"]>;
+export type NewSecretaria = Insertable<Database["secretaria"]>;
+
 
