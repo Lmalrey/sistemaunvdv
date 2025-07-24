@@ -176,9 +176,11 @@
 		<p>Gestiona los doctores y secretarias registrados en el sistema</p>
 		<div class="actions-bar">
 			<div></div>
-			<a href="/private/usuarios/add" class="add-button">Agregar Usuario</a>
+			<a href="/private/usuarios/add" class="add-button">
+				<i class="fas fa-plus"></i>
+				Agregar Usuario</a>
 		</div>
-
+		
 		<!-- Pestañas para seleccionar la tabla -->
 		<div class="tabs">
 			<button class="tab-btn" class:active={activeTab === 'doctors'} onclick={() => activeTab = 'doctors'}>
@@ -200,6 +202,7 @@
                     oninput={() => handleSearchInput('doctors')}
                 >
 			</div>
+			
 			<div class="table-scroll-container">
 				<table>
 					<thead>
