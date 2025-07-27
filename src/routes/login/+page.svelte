@@ -26,7 +26,7 @@
                             <input type="password" name="password" placeholder="Ingrese su contraseña">
                         </div>
                     </div>
-                    <a href="login/restorepassword/" class="forgot-password">¿Olvidaste la contraseña?</a>
+                    <a href="login/restorepassword" class="forgot-password">¿Olvidaste la contraseña?</a>
                     <button type="submit" class="login-button">Iniciar Sesión</button>
                 </form>
             </div>

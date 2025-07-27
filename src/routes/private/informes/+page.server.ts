@@ -4,7 +4,7 @@ import type { ServerLoad, Actions } from "@sveltejs/kit";
 
 export const load: ServerLoad = async({url})=>{
     const page = Number(url.searchParams.get('page') ?? '1');
-    const pageSize = 10; // O el número de items por página que prefieras
+    const pageSize = 5; // O el número de items por página que prefieras
     const searchTerm = url.searchParams.get('search');
 
     // 1. CONSULTA BASE CON JOINS

@@ -17,7 +17,7 @@ export type RecipeEntry = {
 
 export const load: PageServerLoad = async ({ url }) => {
 	const page = Number(url.searchParams.get('page') ?? '1');
-	const pageSize = 10;
+	const pageSize = 5;
 	const searchTerm = url.searchParams.get('search') ?? '';
 
 	// Consulta base para reutilizar en la obtención de datos y el conteo total

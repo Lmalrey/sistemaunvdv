@@ -57,7 +57,7 @@
     ];
     
     const table = $derived(createSvelteTable({
-        data: data.informes, // Usamos 'informes' de nuestro `load`
+        data: data.informes,
         columns,
         pageCount: data.pageCount,
         state: {
@@ -351,7 +351,7 @@
 }
 
 .table-scroll-container{
-    max-height: 300px;
+    max-height: 450px;
     overflow-y: auto;
 }
 .table-scroll-container table {

@@ -17,7 +17,7 @@ export const actions: Actions = {
     }
   },
   login: async ({ request, locals: { supabase } }) => {
-    const formData = await request.formData()
+      const formData = await request.formData()
     const email = formData.get('email') as string
     const password = formData.get('password') as string
 
@@ -26,7 +26,7 @@ export const actions: Actions = {
       console.error(error)
       redirect(303, '/login/error')
     } else {
-      redirect(303, '/private')
+      redirect(303, '../private/dashboard')
     }
   }
 }
