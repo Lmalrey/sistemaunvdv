@@ -58,7 +58,7 @@
 		
 		<!-- === FORMULARIO 1: CREAR RESPALDO === -->
 		<form method="POST" action="?/create" use:createEnhance>
-			<button type="submit" disabled={$creating}>
+			<button class="backup-button" type="submit" disabled={$creating}>
 				{$creating ? 'Creando respaldo...' : 'Iniciar Respaldo'}
 			</button>
 		</form>
@@ -135,7 +135,6 @@
 				<label for="confirmation">
 					Para confirmar, escriba exactamente: <strong>CONFIRMAR RESTAURACIÓN</strong>
 				</label>
-				<!-- Vinculamos directamente al store del formulario de restauración -->
 				<input
 					type="text"
 					id="confirmation"
@@ -162,18 +161,98 @@
 	</dialog>
 {/if}
 <style>
-	.backup-container { max-width: 1000px; margin: 2rem auto; font-family: sans-serif; }
-	.card { background: #f9f9f9; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; }
-	table { width: 100%; border-collapse: collapse; }
-	th, td { text-align: left; padding: 0.75rem; border-bottom: 1px solid #ddd; }
-	.actions { display: flex; gap: 0.5rem; }
-	.btn-icon { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0.25rem; }
-	.message { padding: 1rem; border-radius: 6px; margin-bottom: 1rem; }
-	.message.success { background-color: #d4edda; color: #155724; }
-	/* .message.error { background-color: #f8d7da; color: #721c24; } */
-	.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 100; }
-	.modal-content { background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 90%; }
-	.danger-text { color: #dc3545; font-weight: bold; }
-	.modal-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem; }
-	.btn-danger { background-color: #dc3545; color: white; /* ... */ }
+	.backup-container { 
+		max-width: 1000px; 
+		margin: 2rem auto; 
+		font-family: sans-serif; 
+	}
+	.backup-button{
+		background-color: var(--color-blue-500);
+		border: none;
+		border-radius: 8px;
+		padding: 10px 20px;
+		font-size: 15px;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		transition: background-color 0.3s;
+		font-weight: 500;
+		outline: none;
+		color: white;
+	}
+	.backup-button:hover {
+		background-color: var(--color-blue-900);
+	}
+
+	.card { 
+		background: #f9f9f9; 
+		padding: 1.5rem; 
+		border-radius: 8px; 
+		margin-bottom: 2rem; 
+	}
+	table { 
+		width: 100%; 
+		border-collapse: collapse; 
+	}
+	th, td { 
+		text-align: left; 
+		padding: 0.75rem; 
+		border-bottom: 1px solid #ddd; 
+	}
+	.actions { 
+		display: flex; 
+		gap: 0.5rem; 
+	}
+	.btn-icon { 
+		background: none; 
+		border: none; 
+		cursor: pointer; 
+		font-size: 1.2rem; 
+		padding: 0.25rem; 
+	}
+	.message { 
+		padding: 1rem; 
+		border-radius: 6px; 
+		margin-bottom: 1rem; 
+	}
+	.message.success { 
+		background-color: #d4edda; 
+		color: #155724; 
+	}
+	.modal-overlay { 
+		position: fixed; 
+		top: 0; 
+		left: 0; 
+		width: 100%; 
+		height: 100%; 
+		background: rgba(0,0,0,0.6); 
+		display: flex; 
+		align-items: center; 
+		justify-content: center; 
+		z-index: 100; 
+	}
+	.modal-content { 
+		background: white; 
+		padding: 2rem; 
+		border-radius: 8px; 
+		max-width: 500px; 
+		width: 90%; }
+	.danger-text { 
+		color: #dc3545; 
+		font-weight: bold; 
+	}
+	.modal-actions { 
+		display: flex; 
+		justify-content: flex-end; 
+		gap: 1rem; 
+		margin-top: 1.5rem; 
+	}
+	.btn-danger { 
+		background-color: #dc3545; 
+		color: white;  
+	}
+	p{
+		margin-bottom: .5rem;
+	}
 </style>

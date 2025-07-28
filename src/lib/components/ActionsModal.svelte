@@ -31,11 +31,13 @@
 
 <!-- svelte-ignore slot_element_deprecated -->
 <div class="actions-modal">
+	<slot name="showAction"/>
 	<button class="action-item" onclick={onEdit}>
 		<span class="icon">✎</span>
 		Editar
 	</button>
 	<slot name="deleteAction"/>
+
 </div>
 
 <style>

@@ -115,6 +115,12 @@
         </button>
         {#if isModalOpen && selectedItemId === informe.id}
             <ActionsModal onEdit={handleEdit} close={closeActionsModal}>
+                <svelte:fragment slot="showAction">
+                    <a href="/private/informes/{selectedItemId}/show" class="action-item">
+                        <span class="icon">👁️</span>
+                        Mostrar
+                    </a>
+                </svelte:fragment>
                 <svelte:fragment slot="deleteAction">
                 <form
                     method="POST"
@@ -281,6 +287,10 @@
     color: #ffffff;
     text-decoration: none;
     }
+    a.action-item {
+        color: inherit;
+        text-decoration: none;
+    }
     .add-button {
     background-color: var(--color-blue-500);
     border: none;
@@ -307,14 +317,13 @@
     border-collapse: collapse;
     background-color: #ffffff;
     border-radius: 8px;
-    overflow: hidden; /* Ensures rounded corners apply to content */
 }
 
     table thead {
     background-color: #f8f9fa;
 }
 
-     thead th {
+     thead, th {
     position: sticky;
     top: 0;
     z-index: 2;

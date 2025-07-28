@@ -109,6 +109,12 @@
 		</button>
 		{#if isModalOpen && selectedItemId === recipe.id}
 			<ActionsModal onEdit={handleEdit} close={closeActionsModal}>
+				<svelte:fragment slot="showAction">
+                    <a href="/private/recipes/{selectedItemId}/show" class="action-item">
+                        <span class="icon">👁️</span>
+                        Mostrar
+                    </a>
+                </svelte:fragment>
 				<svelte:fragment slot="deleteAction">
 					<form
 						method="POST"
@@ -231,7 +237,6 @@
 		border-collapse: collapse; 
 		background-color: #ffffff; 
 		border-radius: 8px; 
-		overflow: hidden; 
 	}
     table thead { 
 		background-color: #f8f9fa; 
@@ -252,12 +257,23 @@
     .actions-container{ position: relative; display: inline-block; }
     .actions-button{ background-color: transparent; border: none; cursor: pointer; border-radius: 4px; padding: 4px; }
     .actions-button:hover { background-color: #f0f0f0; }
-    .table-scroll-container{ min-height: 400px; overflow-y: auto; }
+    .table-scroll-container{ 
+		min-height: 400px; 
+		overflow-y: auto; 
+	}
+	.table-scroll-container table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: transparent; /* El fondo lo pone el contenedor */
+    border-radius: 0; /* Las esquinas redondeadas las pone el contenedor */
+	}
     .action-item { display: flex; align-items: center; gap: 10px; padding: 10px; border: none; background: none; width: 100%; text-align: left; border-radius: 6px; font-size: 1rem; cursor: pointer; transition: background-color 0.2s; }
     .action-item:hover { background-color: #f5f5f5; }
     .action-item .icon { font-size: 1.2rem; }
     .action-item.delete { color: #e53e3e; }
-    .action-item.delete:hover { background-color: #fed7d7; }
+    .action-item.delete:hover { 
+		background-color: #fed7d7; 
+	}
     .footer{ 
 		display: flex; 
 		gap: 4px; padding: 8px; 
@@ -265,8 +281,24 @@
 		border-top: 1px solid #e0e0e0; 
 		justify-content: flex-end; 
 		align-items: center; }
-    .prev, .next { background: none; border: none; padding: 4px; display: flex; align-items: center; justify-content: center; }
-    .prev:not(:disabled):hover, .next:not(:disabled):hover { cursor: pointer; background-color: #f0f0f0; border-radius: 4px; }
-    .prev svg, .next svg { width: 20px; stroke: #333; }
-    .prev:disabled svg, .next:disabled svg { stroke: #ccc; }
+    .prev, .next { 
+		background: none; 
+		border: none; 
+		padding: 4px; 
+		display: flex; 
+		align-items: center; 
+		justify-content: center; 
+	}
+    .prev:not(:disabled):hover, .next:not(:disabled):hover { 
+		cursor: pointer; 
+		background-color: #f0f0f0; 
+		border-radius: 4px; 
+	}
+    .prev svg, .next svg {
+		width: 20px; 
+		stroke: #333; 
+	}
+    .prev:disabled svg, .next:disabled svg { 
+		stroke: #ccc; 
+		}
 </style>

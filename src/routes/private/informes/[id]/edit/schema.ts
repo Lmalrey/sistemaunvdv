@@ -1,4 +1,4 @@
-// src/routes/private/informes/[id]/edit/schema.ts (CORREGIDO)
+// src/routes/private/informes/[id]/edit/schema.ts
 import { z } from 'zod';
 
 export const medicalRecordSchema = z.object({
