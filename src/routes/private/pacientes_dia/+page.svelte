@@ -1,16 +1,28 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	// --- IMPORTAR EL MODAL Y GOTO ---
+	import FilterModal from '$lib/components/FilterModal.svelte';
+	import { goto } from '$app/navigation';
 	import type { PageData } from './$types';
 	import { format } from 'date-fns';
 
 	let { data }: { data: PageData } = $props();
 
+	// --- ESTADO PARA CONTROLAR EL MODAL DE FILTROS ---
+	let isFilterModalOpen = $state(false);
+
 </script>
 
 <div class="daily-patients-container">
 	<div class="header">
-		<h1>Pacientes del Día</h1>
-		<p>Gestiona las citas programadas para hoy, {format(new Date(), 'dd/MM/yyyy')}.</p>
+		<div>
+			<h1>Pacientes del Día</h1>
+			<p>Gestiona las citas programadas para hoy, {format(new Date(), 'dd/MM/yyyy')}.</p>
+		</div>
+		<!-- --- BOTÓN PARA ABRIR EL MODAL DE FILTROS --- -->
+		<button class="btn-secondary" onclick={() => isFilterModalOpen = true}>
+			Filtrar
+		</button>
 	</div>
 
 	{#if data.appointments.length > 0}
@@ -43,8 +55,6 @@
 							method="POST"
 							action="?/updateStatus"
 							use:enhance={() => {
-								// use:enhance invalidará los datos automáticamente tras el éxito,
-								// lo que recargará la lista con el nuevo estado.
 								return async ({ update }) => {
 									await update();
 								};
@@ -70,10 +80,27 @@
 		</div>
 	{:else}
 		<div class="no-appointments-message">
-			<p>No hay citas programadas para el día de hoy.</p>
+			<p>No hay citas que coincidan con los filtros seleccionados para el día de hoy.</p>
+			<!-- Botón para limpiar filtros si no hay resultados -->
+			{#if data.filters.doctorId || data.filters.specialtyId || data.filters.statusId}
+				<button class="btn-secondary" onclick={() => goto('/private/pacientes_dia')}>
+					Limpiar Filtros
+				</button>
+			{/if}
 		</div>
 	{/if}
 </div>
+
+<!-- --- RENDERIZAR EL MODAL DE FILTROS --- -->
+{#if isFilterModalOpen}
+	<FilterModal 
+		close={() => isFilterModalOpen = false}
+		doctors={data.allDoctors}
+		specialties={data.allSpecialties}
+		statuses={data.allStatuses}
+		currentFilters={data.filters}
+	/>
+{/if}
 
 <style>
 	.daily-patients-container {

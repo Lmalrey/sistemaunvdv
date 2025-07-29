@@ -5,6 +5,7 @@ import { addDays, addMinutes, format, isBefore, setHours, startOfDay } from 'dat
 export const GET = async ({ url }) => {
 	const doctorId = url.searchParams.get('doctorId');
 	const dateStr = url.searchParams.get('date'); // Formato 'YYYY-MM-DD'
+	const excludeId = url.searchParams.get('excludeId');
 
 	if (!doctorId || !dateStr) {
 		return json({ error: 'Faltan doctorId o fecha' }, { status: 400 });
@@ -15,14 +16,19 @@ export const GET = async ({ url }) => {
 	const dayEnd = addDays(dayStart, 1);
 
 	try {
-		// 1. Obtener todas las citas ya reservadas para ese doctor en ese día
-		const bookedAppointments = await db
-			.selectFrom('date')
+
+		let query = db.selectFrom('date')
 			.select('date')
 			.where('doctor_id', '=', BigInt(doctorId))
 			.where('date', '>=', dayStart)
-			.where('date', '<', dayEnd)
-			.execute() as { date: Date }[];
+			.where('date', '<', dayEnd);
+
+		if (excludeId) {
+			query = query.where('id', '!=', BigInt(excludeId)); // <-- Excluir cita
+		}
+
+		// 1. Obtener todas las citas ya reservadas para ese doctor en ese día
+		const bookedAppointments = await query.execute();
 		
 		// Usar un Set para búsquedas de tiempo O(1) (mucho más rápido que Array.includes)
 		const bookedTimes = new Set(bookedAppointments.map(appt => format(new Date(appt.date), 'HH:mm')));

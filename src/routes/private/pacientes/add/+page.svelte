@@ -1,16 +1,17 @@
 <script lang="ts">
-    import {zod} from 'sveltekit-superforms/adapters';
+    import { zod } from 'sveltekit-superforms/adapters';
     import { superForm } from 'sveltekit-superforms';
     import { patientFormSchema } from './schema';
 
-  let { data } = $props();
+    let { data } = $props();
 
-  let currentStep = $state(1);
+    let currentStep = $state(1);
 
-  const { form, enhance, errors, message } = superForm(data.form, {
+    const { form, enhance, errors, message } = superForm(data.form, {
 		validators: zod(patientFormSchema),
 		dataType: 'json',
 	});
+
     function nextStep() {
 		if (currentStep < 3) {
 			currentStep++;
@@ -26,6 +27,33 @@
 	function goToStep(step: number) {
 		currentStep = step;
 	}
+
+    // --- INICIO: LÓGICA DE VALIDACIÓN PARA ANTECEDENTES ---
+
+    // Variable derivada para saber si hay alguna respuesta afirmativa en antecedentes personales
+    const hasPersonalAnswer = $derived(
+        $form.personal_background.answers.some(ans => ans.answer === true)
+    );
+
+    // Variable derivada para saber si hay alguna respuesta afirmativa en antecedentes familiares
+    const hasFamilyAnswer = $derived(
+        $form.family_background.answers.some(ans => ans.answer === true)
+    );
+
+    // Efecto para limpiar el textarea si se desmarcan todas las opciones
+    $effect(() => {
+        if (!hasPersonalAnswer) {
+            $form.personal_background.description = '';
+        }
+    });
+
+    $effect(() => {
+        if (!hasFamilyAnswer) {
+            $form.family_background.description = '';
+        }
+    });
+
+    // --- FIN: LÓGICA DE VALIDACIÓN ---
 </script>
 
 
@@ -155,9 +183,22 @@
 				<p class="subtitle">Seleccione los antecedentes médicos del paciente</p>
 				
                 <div class="antecedentes-section">
-                    <label for="personal_description">Descripción de Antecedentes Personales</label>
-                    <textarea id="personal_description" name="personal_background.description" bind:value={$form.personal_background.description}
-                        placeholder="Describa detalladamente los antecedentes personales del paciente"></textarea>
+                    <!-- --- CAMBIO: AÑADIR ATRIBUTO 'disabled' --- -->
+                    <label for="personal_description">
+                        Descripción de Antecedentes Personales
+                        {#if !hasPersonalAnswer}
+                            <small class="disabled-reason">(Marque al menos una opción para habilitar)</small>
+                        {/if}
+                    </label>
+                    <textarea 
+                        id="personal_description" 
+                        name="personal_background.description" 
+                        bind:value={$form.personal_background.description}
+                        placeholder={hasPersonalAnswer ? "Describa detalladamente..." : "Seleccione una opción de la lista"}
+                        disabled={!hasPersonalAnswer}
+                    ></textarea>
+                    <!-- --------------------------------------- -->
+
                     {#if $errors.personal_background?.description}<span class="error">{$errors.personal_background.description}</span>{/if}
                     
                     <h4>Preguntas Personales</h4>
@@ -174,9 +215,22 @@
                 </div>
 
                 <div class="antecedentes-section">
-                    <label for="family_description">Descripción de Antecedentes Familiares</label>
-                    <textarea id="family_description" name="family_background.description" bind:value={$form.family_background.description}
-                        placeholder="Describa detalladamente los antecedentes familiares del paciente"></textarea>
+                    <!-- --- CAMBIO: AÑADIR ATRIBUTO 'disabled' --- -->
+                    <label for="family_description">
+                        Descripción de Antecedentes Familiares
+                        {#if !hasFamilyAnswer}
+                            <small class="disabled-reason">(Marque al menos una opción para habilitar)</small>
+                        {/if}
+                    </label>
+                    <textarea 
+                        id="family_description" 
+                        name="family_background.description" 
+                        bind:value={$form.family_background.description}
+                        placeholder={hasFamilyAnswer ? "Describa detalladamente..." : "Seleccione una opción de la lista"}
+                        disabled={!hasFamilyAnswer}
+                    ></textarea>
+                    <!-- --------------------------------------- -->
+
                     {#if $errors.family_background?.description}<span class="error">{$errors.family_background.description}</span>{/if}
 
                     <h4>Preguntas Familiares</h4>
@@ -443,4 +497,16 @@
         border-radius: 6px;
         margin-bottom: 1.5rem;
     }
+	textarea:disabled {
+    background-color: #f3f4f6; /* Un gris claro para indicar que está deshabilitado */
+    cursor: not-allowed;
+    color: #9ca3af;
+}
+
+.disabled-reason {
+    font-weight: normal;
+    font-style: italic;
+    color: var(--text-color-secondary);
+    margin-left: 0.5rem;
+}
 </style>

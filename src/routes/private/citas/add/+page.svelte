@@ -1,8 +1,9 @@
-<script lang=ts>
-import { superForm } from 'sveltekit-superforms';
+<script lang="ts">
+	import { superForm } from 'sveltekit-superforms';
 	import { appointmentSchema } from './schema';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import type { PageData } from './$types';
+	import ComboBox from '$lib/components/ComboBox.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -11,69 +12,117 @@ import { superForm } from 'sveltekit-superforms';
 		dataType: 'json'
 	});
 
-	function generateTimeSlots() {
-		const slots = [];
-		const startTime = new Date('1970-01-01T08:00:00');
-		const endTime = new Date('1970-01-01T17:00:00');
-		let current = new Date(startTime);
-		while (current < endTime) {
-			slots.push(current.toTimeString().substring(0, 5));
-			current.setMinutes(current.getMinutes() + 30);
-		}
-		return slots;
-	}
-	const timeSlots = generateTimeSlots();
+	// --- ESTADOS PARA LA LÓGICA DE DISPONIBILIDAD ---
+	let doctorAvailableSlots = $state<string[]>([]);
+	let patientBookedSlots = $state<Set<string>>(new Set());
+	let isLoadingSlots = $state(false);
+	
+	// --- NUEVO ESTADO PARA PACIENTES OCUPADOS POR DOCTOR/DÍA ---
+	let dailyBookedPatientIds = $state<Set<string>>(new Set());
+	
+	let apiController: AbortController | undefined;
 
-	// --- INICIO: LÓGICA PARA ADVERTENCIA DE HORARIO ---
-	let isCheckingAvailability = $state(false);
-	let isSlotUnavailable = $state(false);
-	let debounceTimer: ReturnType<typeof setTimeout>;
-	let controller: AbortController;
+	let previousDoctorId = $state($form.doctor_id);
+	let previousPatientId = $state($form.patient_id);
+	let previousDate = $state($form.appointment_date);
 
+	// --- ÚNICO $effect MEJORADO PARA GESTIONAR TODO ---
 	$effect(() => {
-		const { doctor_id, appointment_date, appointment_time } = $form;
-
-		// Limpiar el estado de la advertencia cada vez que algo cambia
-		isSlotUnavailable = false;
+		const { doctor_id, appointment_date, patient_id } = $form;
 		
-		// Cancelar cualquier verificación anterior
-		clearTimeout(debounceTimer);
-		if (controller) controller.abort();
+		const doctorOrDateChanged = doctor_id !== previousDoctorId || appointment_date !== previousDate;
+		const patientOrDateChanged = patient_id !== previousPatientId || (appointment_date !== previousDate && patient_id);
+		
+		if (doctorOrDateChanged || patientOrDateChanged) {
+			apiController?.abort();
+			apiController = new AbortController();
+		}
 
-		// Solo proceder si tenemos los tres datos
-		if (doctor_id && appointment_date && appointment_time) {
-			// Iniciar un temporizador para no hacer fetch en cada cambio instantáneo
-			debounceTimer = setTimeout(() => {
-				controller = new AbortController();
-				checkAvailability(doctor_id, appointment_date, appointment_time, controller.signal);
-			}, 500); // Espera 500ms antes de verificar
+		// Lógica que se dispara si cambia el DOCTOR o la FECHA
+		if (doctorOrDateChanged) {
+			previousDoctorId = doctor_id;
+			previousDate = appointment_date;
+			
+			// Reiniciar todo lo que depende de esta combinación
+			$form.appointment_time = '';
+			$form.patient_id = '';
+			doctorAvailableSlots = [];
+			dailyBookedPatientIds = new Set();
+			
+			if (doctor_id && appointment_date) {
+				// Cargar horarios libres del doctor
+				fetchDoctorAvailability(doctor_id, appointment_date, apiController.signal);
+				// Cargar pacientes que ya tienen cita con este doctor este día
+				fetchDailyBookedPatients(doctor_id, appointment_date, apiController.signal);
+			}
+		}
+
+		// Lógica que se dispara si cambia el PACIENTE (o la fecha mientras hay un paciente seleccionado)
+		if (patientOrDateChanged) {
+			if (patient_id !== previousPatientId) {
+				previousPatientId = patient_id;
+				$form.appointment_time = ''; 
+			}
+			previousDate = appointment_date;
+
+			patientBookedSlots = new Set();
+			if (patient_id && appointment_date) {
+				// Cargar horarios ocupados por el paciente con OTROS doctores
+				fetchPatientSchedule(patient_id, appointment_date, apiController.signal);
+			}
 		}
 	});
 
-	async function checkAvailability(doctorId: string, date: string, time: string, signal: AbortSignal) {
-		isCheckingAvailability = true;
+	async function fetchDoctorAvailability(doctorId: string, date: string, signal: AbortSignal) {
+		isLoadingSlots = true;
 		try {
-			const response = await fetch(`/api/check-availability?doctorId=${doctorId}&date=${date}&time=${time}`, { signal });
-			
-			if (signal.aborted) return; // Si se abortó mientras esperábamos, no hacemos nada
-
+			const response = await fetch(`/api/availability?doctorId=${doctorId}&date=${date}`, { signal });
+			if (signal.aborted) return;
+			doctorAvailableSlots = response.ok ? await response.json() : [];
+		} catch (err:any) { if (err.name !== 'AbortError') console.error(err); }
+		finally { if (!signal.aborted) isLoadingSlots = false; }
+	}
+	
+	// NUEVA función para obtener pacientes ocupados por doctor/día
+	async function fetchDailyBookedPatients(doctorId: string, date: string, signal: AbortSignal) {
+		try {
+			const response = await fetch(`/api/booked-patients?doctorId=${doctorId}&date=${date}`, { signal });
+			if (signal.aborted) return;
 			if (response.ok) {
 				const result = await response.json();
-				isSlotUnavailable = !result.isAvailable;
+				dailyBookedPatientIds = new Set(result.bookedPatientIds);
 			}
-		} catch (err: any) {
-			if (err.name !== 'AbortError') {
-				console.error('Error al verificar horario:', err);
-			}
-		} finally {
-			if (!signal.aborted) {
-				isCheckingAvailability = false;
-			}
-		}
+		} catch (err:any) { if (err.name !== 'AbortError') console.error(err); }
 	}
-	// --- FIN: LÓGICA PARA ADVERTENCIA ---
 
+	async function fetchPatientSchedule(patientId: string, date: string, signal: AbortSignal) {
+		try {
+			const response = await fetch(`/api/patient-schedule?patientId=${patientId}&date=${date}`, { signal });
+			if (signal.aborted) return;
+			if (response.ok) {
+				const result = await response.json();
+				patientBookedSlots = new Set(result.bookedTimes);
+			}
+		} catch (err:any) { if (err.name !== 'AbortError') console.error(err); }
+	}
+
+	const finalAvailableSlots = $derived(
+		doctorAvailableSlots.filter(slot => !patientBookedSlots.has(slot))
+	);
+	
+	// --- LISTA DE PACIENTES FILTRADA PARA EL COMBOBOX ---
+	const availablePatientsOptions = $derived(
+		data.patients
+			// Filtramos los pacientes cuyo ID está en la lista de "ocupados para ese día"
+			.filter(p => !dailyBookedPatientIds.has(p.id.toString()))
+			.map(p => ({
+				value: p.id.toString(),
+				label: `${p.name} ${p.lastName} (CI: ${p.ci})`
+			}))
+	);
 </script>
+
+
 
 <div class="appointment-container">
 	<div class="header">
@@ -81,7 +130,6 @@ import { superForm } from 'sveltekit-superforms';
 		<h1>Programar Nueva Cita</h1>
 	</div>
 
-	<!-- El mensaje de error del servidor es ahora muy importante -->
 	{#if $message}
 		<div class="form-message-error">{$message}</div>
 	{/if}
@@ -102,62 +150,68 @@ import { superForm } from 'sveltekit-superforms';
 
 				<div>
 					<label for="appointment_date">Fecha de la Cita</label>
-					<input type="date" name="appointment_date" id="appointment_date" bind:value={$form.appointment_date} min={new Date().toISOString().split('T')[0]}/>
+					<input
+						type="date"
+						name="appointment_date"
+						id="appointment_date"
+						bind:value={$form.appointment_date}
+						min={new Date().toISOString().split('T')[0]}
+					/>
 					{#if $errors.appointment_date}<span class="error">{$errors.appointment_date}</span>{/if}
 				</div>
-
-				<!-- --- INICIO DEL SELECT ESTÁTICO --- -->
+				<div>
+					<label for="patient_id">Paciente</label>
+					<ComboBox
+						options={availablePatientsOptions}
+						bind:value={$form.patient_id}
+						placeholder="Buscar y seleccionar paciente..."
+					/>
+					{#if $errors.patient_id}<span class="error">{$errors.patient_id}</span>{/if}
+				</div>
 				
 				<div>
 					<label for="appointment_time">Hora de la Cita</label>
-					<select 
-						name="appointment_time" 
-						id="appointment_time" 
-						bind:value={$form.appointment_time}
-						disabled={!$form.doctor_id || !$form.appointment_date}
-					>
+					<select name="appointment_time" id="appointment_time" bind:value={$form.appointment_time} disabled={!$form.doctor_id || !$form.appointment_date || !$form.patient_id}>
 						<option disabled value="">
-							{#if !$form.doctor_id || !$form.appointment_date}
-								Seleccione doctor y fecha
+							{#if !$form.doctor_id || !$form.appointment_date || !$form.patient_id}
+								Seleccione doctor, fecha y paciente
+							{:else if isLoadingSlots}
+								Cargando horarios...
+							{:else if finalAvailableSlots.length === 0}
+								No hay horarios compatibles
 							{:else}
 								Seleccionar hora
 							{/if}
 						</option>
-						{#each timeSlots as slot}
+						{#each finalAvailableSlots as slot}
 							<option value={slot}>{slot}</option>
 						{/each}
 					</select>
 					{#if $errors.appointment_time}<span class="error">{$errors.appointment_time}</span>{/if}
-					
-					<!-- MENSAJES DE ESTADO DE DISPONIBILIDAD -->
-					{#if isCheckingAvailability}
-						<span class="status-message checking">Verificando...</span>
-					{:else if isSlotUnavailable}
-						<span class="status-message unavailable">⚠️ Horario no disponible</span>
-					{/if}
 				</div>
 
-				<div>
-					<label for="patient_id">Paciente</label>
-					<select name="patient_id" id="patient_id" bind:value={$form.patient_id}>
-						<option disabled value="">Seleccionar paciente</option>
-						{#each data.patients as p}
-							<option value={p.id.toString()}>{p.name} {p.lastName} (CI: {p.ci})</option>
-						{/each}
-					</select>
-					{#if $errors.patient_id}<span class="error">{$errors.patient_id}</span>{/if}
-				</div>
 
 				<div class="full-width">
 					<label for="observation">Observación (Opcional)</label>
-					<textarea name="observation" id="observation" bind:value={$form.observation} placeholder="Alergias, motivo de la consulta, etc."></textarea>
+					<textarea
+						name="observation"
+						id="observation"
+						bind:value={$form.observation}
+						placeholder="Alergias, motivo de la consulta, etc."
+					></textarea>
 					{#if $errors.observation}<span class="error">{$errors.observation}</span>{/if}
 				</div>
 			</div>
 		</div>
 
 		<div class="submit-container">
-			<button type="submit" class="button-primary">Programar Cita</button>
+			<button 
+				type="submit" 
+				class="button-primary"
+				disabled={!$form.doctor_id || !$form.appointment_date || !$form.appointment_time || !$form.patient_id}
+			>
+				Programar Cita
+			</button>
 		</div>
 	</form>
 </div>
@@ -178,7 +232,7 @@ import { superForm } from 'sveltekit-superforms';
 	.button-primary { background-color: #007bff; color: white; border: none; padding: 0.75rem 1.5rem; font-size: 1rem; cursor: pointer; border-radius: 6px; }
 	.form-message-error { background-color: #f8d7da; color: #721c24; padding: 1rem; border: 1px solid #f5c6cb; border-radius: 6px; margin-bottom: 1.5rem; }
 
-	.status-message {
+	/* .status-message {
 		display: block;
 		font-size: 0.875rem;
 		margin-top: 0.5rem;
@@ -188,13 +242,26 @@ import { superForm } from 'sveltekit-superforms';
 		color: #666;
 	}
 	.status-message.unavailable {
-		color: #e53e3e; /* Rojo */
-	}
+		color: #e53e3e; /* Rojo
+	} */
 
 	.button-primary:disabled {
 		background-color: #a0aec0; /* Gris */
 		cursor: not-allowed;
 	}
+
+	/* .patient-search {
+		width: 100%;
+		padding: 0.75rem;
+		margin-bottom: 0.5rem;
+		border-radius: 6px;
+		border: 1px solid #ccc;
+	}
+	/* Para que el select parezca un combobox filtrable
+	select[size] {
+		height: auto;
+		min-height: 120px; /* Ajusta según necesites
+	} */
 
 	/* .time-slots-grid {
 		display: grid;

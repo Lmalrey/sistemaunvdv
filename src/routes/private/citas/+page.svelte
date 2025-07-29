@@ -5,9 +5,10 @@
 	import { format } from 'date-fns';
 	import { es } from 'date-fns/locale';
 	import { createSvelteTable, flexRender, getCoreRowModel, type ColumnDef } from '@tanstack/svelte-table';
-	import type { AppointmentEntry } from './$types';
+	import type { AppointmentEntry, PageData } from './$types';
+	import FilterModal from '$lib/components/FilterModal.svelte';
 
-	let { data } = $props();
+	let { data }: { data: PageData } = $props();
 
 	// --- INICIO DE LA SOLUCIÓN: SIMPLIFICAR DEFINICIÓN DE COLUMNAS ---
 	const columns: ColumnDef<AppointmentEntry>[] = [
@@ -60,6 +61,9 @@
 
 	let actionsModalOpenId = $state<bigint | null>(null);
 	let statusModalOpenId = $state<bigint | null>(null);
+	let isFilterModalOpen = $state(false); 
+	let searchTerm = $state(data.filters.searchTerm); 
+
 
 	function openActionsModal(id: bigint) { actionsModalOpenId = id; }
 	function closeActionsModal() { actionsModalOpenId = null; }
@@ -75,6 +79,22 @@
 			closeActionsModal();
 		}
 	}
+
+	let debounceTimer: ReturnType<typeof setTimeout>;
+	function handleSearchInput() {
+		clearTimeout(debounceTimer);
+		debounceTimer = setTimeout(() => {
+			const url = new URL($page.url);
+			if (searchTerm) {
+				url.searchParams.set('search', searchTerm);
+			} else {
+				url.searchParams.delete('search');
+			}
+			url.searchParams.set('page', '1'); // Reiniciar a la página 1 en cada búsqueda
+			goto(url, { replaceState: true, keepFocus: true });
+		}, 500); // Espera 500ms
+	}
+
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -97,6 +117,16 @@
 
 	<div class="table-section">
 		<h2>Próximas Citas</h2>
+		<div class="table-controls">
+			<input 
+				type="search" 
+				class="search-input" 
+				placeholder="Buscar por nombre de paciente..." 
+				bind:value={searchTerm}
+				oninput={handleSearchInput}
+			/>
+			<button class="btn-secondary" onclick={() => isFilterModalOpen = true}>Filtros</button>
+		</div>
 		<div class="table-wrapper">
 			<table>
 				<thead>
@@ -185,6 +215,16 @@
 </div>
 
 <!-- Modal para cambiar estado -->
+{#if isFilterModalOpen}
+	<FilterModal 
+		close={() => isFilterModalOpen = false}
+		doctors={data.doctors}
+		specialties={data.specialties}
+		statuses={data.statuses}
+		currentFilters={data.filters}
+	/>
+{/if}
+
 {#if statusModalOpenId !== null}
 	{@const appointmentToUpdate = data.appointments.find(a => a.id === statusModalOpenId)}
 	<div class="modal-overlay" onclick={closeStatusModal} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') closeStatusModal() }} role="button" tabindex="-1">
@@ -361,5 +401,21 @@
 	}
 	h2{
 		padding-bottom: 1rem;
+	}
+	.table-controls {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 1.5rem;
+	}
+	.search-input {
+		padding: 0.75rem 1rem;
+		border: 1px solid #ccc;
+		border-radius: 8px;
+		width: 300px;
+		font-size: 0.9rem;
+	}
+	.btn-secondary {
+		background-color: #6c757d; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 0.9rem;
 	}
 </style>

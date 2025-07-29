@@ -7,6 +7,7 @@
 	// He añadido una ruta "General" para la página principal de la sección.
 	const menuItems = [
 		{ href: '/private/configuracion', label: 'General' },
+		{ href: '/private/configuracion/diagnostico', label: 'Diagnósticos' },
 		{ href: '/private/configuracion/medicamentos', label: 'Medicamentos' },
 		{ href: '/private/configuracion/marcas', label: 'Marcas' },
 		{ href: '/private/configuracion/unidades_medida', label: 'Unidades' },
